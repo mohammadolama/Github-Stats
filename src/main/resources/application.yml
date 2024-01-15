@@ -1,0 +1,7 @@
+github:
+  base_address: "https://api.github.com/users/{USER_NAME}/repos"
+  token: "Bearer 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"
+
+logging:
+  level:
+    root: INFO
