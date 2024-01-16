@@ -26,4 +26,10 @@ public class ResponseDto {
 
     @JsonProperty("median count of all stars")
     private int medianCountStars;
+
+    @JsonProperty("total count of all contributors")
+    private int contibutors;
+
+    @JsonProperty("median of contributors")
+    private int medianContributors;
 }

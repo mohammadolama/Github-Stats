@@ -43,18 +43,36 @@ public class MyService {
 
         for (Root root : list) {
             try {
+                RepositoryDTO repositoryDTO = new RepositoryDTO();
+                repositoryDTO.setName(root.getName());
+                repositoryDTO.setStarCounts(root.getStargazers_count());
+
+
                 String commitsUrl = root.getCommits_url().replace("{/sha}", "?per_page=1");
                 log.info(commitsUrl);
 
                 HttpEntity requestEntity = new HttpEntity<>(headers);
-                ResponseEntity<List<CommitRoot>> tokenResponseEntity = restTemplate.exchange(commitsUrl, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<CommitRoot>>() {
-                });
+                ResponseEntity<List<CommitRoot>> tokenResponseEntity = restTemplate.exchange(commitsUrl, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<CommitRoot>>() {});
+
                 if (tokenResponseEntity.getStatusCode() == HttpStatus.OK && tokenResponseEntity.getBody() !=null) {
+
                     log.info(tokenResponseEntity.getStatusCode());
                     int count = findCount(tokenResponseEntity.getHeaders().get("link").get(0));
-                    log.info(root.getName() + " : count=" + count + " , star=" + root.getStargazers_count());
-                    result.add(new RepositoryDTO(root.getName() , count ,  root.getStargazers_count()));
+                    repositoryDTO.setCountCommits(count);
                 }
+
+                String contributorsUrl = root.getContributors_url() + "?per_page=1";
+                ResponseEntity<List<CommitRoot>> contributions = restTemplate.exchange(contributorsUrl, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<CommitRoot>>() {
+                });
+
+                if (contributions.getStatusCode() == HttpStatus.OK && contributions.getBody() != null){
+                    log.info(tokenResponseEntity.getStatusCode());
+                    int count = findCount(contributions.getHeaders().get("link").get(0));
+                    repositoryDTO.setContributorCount(count);
+                }
+
+                log.info(root.getName() + " : coomit count=" + repositoryDTO.getCountCommits() + " , star=" + repositoryDTO.getStarCounts() + " , contributors=" + repositoryDTO.getContributorCount());
+                result.add(repositoryDTO);
             }catch (Exception ignore){
 
             }

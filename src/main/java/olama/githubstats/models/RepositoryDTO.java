@@ -16,5 +16,6 @@ public class RepositoryDTO {
 
     private Integer starCounts;
 
+    private Integer contributorCount;
 
 }
