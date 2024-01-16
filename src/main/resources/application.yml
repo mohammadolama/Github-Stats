@@ -10,3 +10,6 @@ logging:
     olama:
       githubstats: TRACE
     root: INFO
+
+server:
+  port: 8080
