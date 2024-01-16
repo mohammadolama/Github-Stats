@@ -2,7 +2,9 @@ package olama.githubstats.models;
 
 import lombok.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Setter
@@ -20,5 +22,20 @@ public class RepositoryDTO {
     private Integer contributorCount;
 
     private Integer branchesCount;
+
+    private Integer tagsCount;
+
+    private Integer forksCount;
+
+    private Integer releasesCount;
+
+    private Integer closedIssues;
+
+    private Integer environments;
+
+    private Integer deployments;
+
+    private Map<String , Integer> languages;
+
 
 }

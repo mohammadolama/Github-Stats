@@ -1,9 +1,9 @@
 package olama.githubstats.models;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Getter
@@ -12,30 +12,49 @@ import java.util.List;
 @NoArgsConstructor
 public class ResponseDto {
 
-    @JsonProperty("total counts of all commits")
     private int commitsCount;
 
-    @JsonProperty("median count of all commits")
-    private int commmitsMedian;
+    private int commitsMedian;
 
-    @JsonProperty("list of commits")
     private List<RepositoryCommitDto> commitList;
 
-    @JsonProperty("total counts of all stars")
     private int starsCount;
 
-    @JsonProperty("median count of all stars")
     private int starsMedian;
 
-    @JsonProperty("total count of all contributors")
-    private int contibutorsCount;
+    private int contributorsCount;
 
-    @JsonProperty("median of contributors")
     private int contributorsMedian;
 
-    @JsonProperty("total count of all branches")
     private int branchCount;
 
-    @JsonProperty("median of branches")
     private int branchMedian;
+
+    private int tagsCount;
+
+    private int tagsMedian;
+
+    private int forksCount;
+
+    private int forksMedian;
+
+    private Integer releasesCount;
+
+    private Integer releasesMedian;
+
+    private Integer closedIssuesCount;
+
+    private Integer closedIssuesMedian;
+
+    private Integer environmentsCount;
+
+    private Integer environmentsMedian;
+
+    private Integer deploymentsCount;
+
+    private Integer deploymentsMedian;
+
+    private Map<String, Language> languages;
+
+
 }

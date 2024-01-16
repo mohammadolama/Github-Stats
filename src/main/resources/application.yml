@@ -1,9 +1,11 @@
 github:
-  base_address: "https://api.github.com/users/{USER_NAME}/repos"
+  base_address: "https://api.github.com/users/{USER_NAME}/repos?per_page=100&page={I}"
+  deployment_address: "https://api.github.com/repos/{USER_NAME}/{REPO_NAME}/deployments"
+  environment_address: "https://api.github.com/repos/{USER_NAME}/{REPO_NAME}/environments"
   token: "Bearer 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"
 
 logging:
   level:
     olama:
-      githubstats: DEBUG
+      githubstats: TRACE
     root: INFO

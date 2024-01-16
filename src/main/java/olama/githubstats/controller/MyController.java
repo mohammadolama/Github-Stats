@@ -7,10 +7,7 @@ import org.springframework.asm.TypeReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,27 +42,47 @@ public class MyController {
         this.myService = myService;
     }
 
+    public int extractLink(ResponseEntity response) {
+        List<String> link = response.getHeaders().get("link");
+        if (link == null || link.isEmpty()) {
+            return 0;
+        }
+        int count = Utils.findCount(link.get(0));
+        return count;
+    }
+
 
     @GetMapping("/repos/{username}")
     public ResponseDto findStat(@PathVariable("username") String username) {
 
-        String address = baseAddress.replace("{USER_NAME}" , username);
+        String address = baseAddress.replace("{USER_NAME}", username);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("X-GitHub-Api-Version" , "2022-11-28");
-        headers.add("Authorization" , token);
-        headers.add("Accept" , "application/vnd.github+json");
+        headers.add("X-GitHub-Api-Version", "2022-11-28");
+        headers.add("Authorization", token);
+        headers.add("Accept", "application/vnd.github+json");
 
         HttpEntity requestEntity = new HttpEntity<>(headers);
 
-        ResponseEntity<List<Root>> tokenResponseEntity = restTemplate.exchange(address, HttpMethod.GET, requestEntity ,new ParameterizedTypeReference<List<Root>>(){});
+        List<Root> result = new ArrayList<>();
+        ResponseEntity<List<Root>> tokenResponseEntity = restTemplate.exchange(address.replace("{I}", 1 + ""), HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<Root>>() {
+        });
+        if (tokenResponseEntity.getStatusCode() == HttpStatus.OK && tokenResponseEntity.getBody() != null) {
+            result.addAll(tokenResponseEntity.getBody());
+        }
+        int i = extractLink(tokenResponseEntity);
+        for (int j = 2; j <= i; j++) {
+            tokenResponseEntity = restTemplate.exchange(address.replace("{I}", j + ""), HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<Root>>() {
+            });
+            if (tokenResponseEntity.getStatusCode() == HttpStatus.OK && tokenResponseEntity.getBody() != null) {
+                result.addAll(tokenResponseEntity.getBody());
+            }
+        }
 
-        List<Root> body = tokenResponseEntity.getBody();
-        List<RepositoryDTO> response = myService.createGeneralStatForRepos(body , headers , restTemplate);
+//        System.out.println(result.size());
 
+        List<RepositoryDTO> response = myService.createGeneralStatForRepos(result, headers, restTemplate, username);
         return Utils.createResult(response);
-
-
     }
 
 
@@ -73,7 +90,7 @@ public class MyController {
     public URL getUrls(@PathVariable("id") String id) throws MalformedURLException {
         List<URL> urls = new ArrayList<>();
         Optional<File> file = myService.getFile(id);
-        if (file.isPresent()){
+        if (file.isPresent()) {
             return file.get().toURI().toURL();
         }
         return null;
