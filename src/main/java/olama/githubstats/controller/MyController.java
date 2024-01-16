@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static olama.githubstats.controller.Utils.extractLink;
+
 @RestController
 @Log4j2
 public class MyController {
@@ -37,16 +39,11 @@ public class MyController {
         this.myService = myService;
     }
 
-    public int extractLink(ResponseEntity response) {
-        List<String> link = response.getHeaders().get("link");
-        if (link == null || link.isEmpty()) {
-            return 0;
-        }
-        int count = Utils.findCount(link.get(0));
-        return count;
-    }
 
-
+    /**
+     * @param username the owner of the github
+     * @return a dto containing the required statistics
+     */
     @GetMapping("/repos/{username}")
     public ResponseDto findStat(@PathVariable("username") String username) {
 
@@ -57,7 +54,7 @@ public class MyController {
         headers.add("Authorization", token);
         headers.add("Accept", "application/vnd.github+json");
 
-        HttpEntity requestEntity = new HttpEntity<>(headers);
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 
         List<RepositoryRoot> result = new ArrayList<>();
         ResponseEntity<List<RepositoryRootDetails>> tokenResponseEntity = restTemplate.exchange(address.replace("{I}", 1 + ""), HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<RepositoryRootDetails>>() {
@@ -82,14 +79,4 @@ public class MyController {
         return Utils.createResult(response);
     }
 
-
-    @GetMapping("/urls/{id}")
-    public URL getUrls(@PathVariable("id") String id) throws MalformedURLException {
-        List<URL> urls = new ArrayList<>();
-        Optional<File> file = myService.getFile(id);
-        if (file.isPresent()) {
-            return file.get().toURI().toURL();
-        }
-        return null;
-    }
 }

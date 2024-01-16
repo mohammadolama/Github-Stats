@@ -4,18 +4,17 @@ import olama.githubstats.models.Language;
 import olama.githubstats.models.RepositoryCommitDto;
 import olama.githubstats.models.RepositoryDTO;
 import olama.githubstats.models.ResponseDto;
+import org.springframework.http.ResponseEntity;
 
 import java.util.*;
 
+/**
+ * This class is used for some utility function like sorting or creating the response dto.
+ */
 public class Utils {
 
     public static List<RepositoryDTO> sortByCountCommit(List<RepositoryDTO> list) {
-        Comparator<RepositoryDTO> comparator = new Comparator<RepositoryDTO>() {
-            @Override
-            public int compare(RepositoryDTO o1, RepositoryDTO o2) {
-                return o1.getCountCommits().compareTo(o2.getCountCommits());
-            }
-        };
+        Comparator<RepositoryDTO> comparator = Comparator.comparing(RepositoryDTO::getCountCommits);
 
         list.sort(comparator);
         return list;
@@ -23,113 +22,64 @@ public class Utils {
 
 
     public static List<RepositoryDTO> sortByStarGazers(List<RepositoryDTO> list) {
-        Comparator<RepositoryDTO> comparator = new Comparator<RepositoryDTO>() {
-            @Override
-            public int compare(RepositoryDTO o1, RepositoryDTO o2) {
-                return o1.getStarCounts().compareTo(o2.getStarCounts());
-            }
-        };
+        Comparator<RepositoryDTO> comparator = Comparator.comparing(RepositoryDTO::getStarCounts);
         list.sort(comparator);
         return list;
     }
 
     public static List<RepositoryDTO> sortByContibutions(List<RepositoryDTO> list) {
-        Comparator<RepositoryDTO> comparator = new Comparator<RepositoryDTO>() {
-            @Override
-            public int compare(RepositoryDTO o1, RepositoryDTO o2) {
-                return o1.getContributorCount().compareTo(o2.getContributorCount());
-            }
-        };
+        Comparator<RepositoryDTO> comparator = Comparator.comparing(RepositoryDTO::getContributorCount);
         list.sort(comparator);
         return list;
     }
 
     public static List<RepositoryDTO> sortByBranches(List<RepositoryDTO> list) {
-        Comparator<RepositoryDTO> comparator = new Comparator<RepositoryDTO>() {
-            @Override
-            public int compare(RepositoryDTO o1, RepositoryDTO o2) {
-                return o1.getBranchesCount().compareTo(o2.getBranchesCount());
-            }
-        };
+        Comparator<RepositoryDTO> comparator = Comparator.comparing(RepositoryDTO::getBranchesCount);
         list.sort(comparator);
         return list;
     }
 
     public static List<RepositoryDTO> sortByForks(List<RepositoryDTO> list) {
-        Comparator<RepositoryDTO> comparator = new Comparator<RepositoryDTO>() {
-            @Override
-            public int compare(RepositoryDTO o1, RepositoryDTO o2) {
-                return o1.getForksCount().compareTo(o2.getForksCount());
-            }
-        };
+        Comparator<RepositoryDTO> comparator = Comparator.comparing(RepositoryDTO::getForksCount);
         list.sort(comparator);
         return list;
     }
 
     public static List<RepositoryDTO> sortByTags(List<RepositoryDTO> list) {
-        Comparator<RepositoryDTO> comparator = new Comparator<RepositoryDTO>() {
-            @Override
-            public int compare(RepositoryDTO o1, RepositoryDTO o2) {
-                return o1.getTagsCount().compareTo(o2.getTagsCount());
-            }
-        };
+        Comparator<RepositoryDTO> comparator = Comparator.comparing(RepositoryDTO::getTagsCount);
         list.sort(comparator);
         return list;
     }
 
     public static List<RepositoryDTO> sortByRelease(List<RepositoryDTO> list) {
-        Comparator<RepositoryDTO> comparator = new Comparator<RepositoryDTO>() {
-            @Override
-            public int compare(RepositoryDTO o1, RepositoryDTO o2) {
-                return o1.getReleasesCount().compareTo(o2.getReleasesCount());
-            }
-        };
+        Comparator<RepositoryDTO> comparator = Comparator.comparing(RepositoryDTO::getReleasesCount);
         list.sort(comparator);
         return list;
     }
 
     public static List<RepositoryDTO> sortByDeployments(List<RepositoryDTO> list) {
-        Comparator<RepositoryDTO> comparator = new Comparator<RepositoryDTO>() {
-            @Override
-            public int compare(RepositoryDTO o1, RepositoryDTO o2) {
-                return o1.getDeployments().compareTo(o2.getDeployments());
-            }
-        };
+        Comparator<RepositoryDTO> comparator = Comparator.comparing(RepositoryDTO::getDeployments);
         list.sort(comparator);
         return list;
     }
 
     public static List<RepositoryDTO> sortByEnvironments(List<RepositoryDTO> list) {
-        Comparator<RepositoryDTO> comparator = new Comparator<RepositoryDTO>() {
-            @Override
-            public int compare(RepositoryDTO o1, RepositoryDTO o2) {
-                return o1.getEnvironments().compareTo(o2.getEnvironments());
-            }
-        };
+        Comparator<RepositoryDTO> comparator = Comparator.comparing(RepositoryDTO::getEnvironments);
         list.sort(comparator);
         return list;
     }
 
     public static List<RepositoryDTO> sortByIssues(List<RepositoryDTO> list) {
-        Comparator<RepositoryDTO> comparator = new Comparator<RepositoryDTO>() {
-            @Override
-            public int compare(RepositoryDTO o1, RepositoryDTO o2) {
-                return o1.getClosedIssues().compareTo(o2.getClosedIssues());
-            }
-        };
+        Comparator<RepositoryDTO> comparator = Comparator.comparing(RepositoryDTO::getClosedIssues);
         list.sort(comparator);
         return list;
     }
 
 
-    public static List<RepositoryCommitDto> getCommits(List<RepositoryDTO> list) {
-        return list.stream().map(d -> new RepositoryCommitDto(d.getName(), d.getCountCommits())).toList();
-    }
-
-
     /**
      * It was more accurate to find the actual median if the size is even. But the result
-     * could be a float number, thus I decided to skip this extra precision.
+     * could be a float number, thus I decided to skip this extra precision of keeping the median
+     * as the mean of two middle numbers.
      */
     public static RepositoryDTO median(List<RepositoryDTO> list) {
         int size = list.size();
@@ -137,6 +87,9 @@ public class Utils {
     }
 
 
+    /**
+     * this function will count the total number of each item to produce the response
+     */
     public static HashMap<String, Integer> getTotals(List<RepositoryDTO> list) {
         int commits = 0;
         int stars = 0;
@@ -175,6 +128,9 @@ public class Utils {
         return map;
     }
 
+    /**
+     * this function will be used to calculate the total count and median of each programming language in all repositories
+     */
     private static Map<String, Language> languages(List<RepositoryDTO> repositoryDTO) {
         Map<String, List<Integer>> map = new HashMap<>();
         Map<String, Language> result = new HashMap<>();
@@ -201,6 +157,9 @@ public class Utils {
         return result;
     }
 
+    /**
+     * this function is used to create the desired response.
+     */
     public static ResponseDto createResult(List<RepositoryDTO> response) {
 
 
@@ -256,11 +215,30 @@ public class Utils {
         return responseDto;
     }
 
-    public static int findCount(String s) {
+    /**
+     * this function is used to find the total number of items in 1 response.
+     * if we set the query paramether to per_page =1 , then the result will contain a 'link' header
+     * which contains a link to the next page and the last page. the last page number is considered as the total count.
+     */
+    public static int extractLink(ResponseEntity<?> response) {
+        try {
+            List<String> link = response.getHeaders().get("link");
+            if (link == null || link.isEmpty()) {
+                return 0;
+            }
+            return findCount(link.get(0));
+        }catch (Exception e){
+            return 0;
+        }
+    }
+
+    private static int findCount(String s) {
+        if (s == null)
+            return 0;
         String[] split = s.split(",");
         String s1 = split[1];
         String substring = s1.substring(s1.indexOf("&page=") + 6, s1.indexOf(">"));
-        return Integer.valueOf(substring);
+        return Integer.parseInt(substring);
     }
 
 }

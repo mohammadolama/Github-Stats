@@ -17,38 +17,23 @@ import java.util.Optional;
 @Component
 public class Repository {
 
-    HashMap<String, RepositoryRootDetails> rootHashMap = new HashMap<>();
-    HashMap<String, File> rootFiles = new HashMap<>();
-
     ObjectMapper objectMapper = new ObjectMapper();
 
 
-    public void add(String id, File base) {
-        rootFiles.put(id, base);
-    }
-
-    public Optional<File> findById(String id) {
-        File root = rootFiles.getOrDefault(id, null);
-        if (root == null) {
-            return Optional.empty();
-        } else {
-            return Optional.of(root);
-        }
-    }
-
-    public boolean save(List<RepositoryRoot> list , String username) {
+    /**
+     * this function will create a json object for each user. it will save the downloaded files in a json file.
+     */
+    public boolean save(List<RepositoryRoot> list, String username) {
 
         try {
-            User user = new User(list.size() , list);
+            User user = new User(list.size(), list);
             objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-            File file = new File("src/main/resources/" +  String.format("result_{%s}.json" , username));
+            File file = new File("src/main/resources/" + String.format("result_{%s}.json", username));
             PrintWriter printWriter = new PrintWriter(file);
             printWriter.println(objectMapper.writeValueAsString(user));
             printWriter.flush();
             printWriter.close();
             return true;
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

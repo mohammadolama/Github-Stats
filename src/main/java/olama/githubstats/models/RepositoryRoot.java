@@ -30,6 +30,8 @@ public class RepositoryRoot {
 
     private List<Commit> commits;
 
+    private List<Issue> issues;
+
     public RepositoryRoot(RepositoryRootDetails details) {
         this.details = details;
     }
