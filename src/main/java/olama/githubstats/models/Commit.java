@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class CommitRoot {
+public class Commit {
 
     public String sha;
     public String node_id;

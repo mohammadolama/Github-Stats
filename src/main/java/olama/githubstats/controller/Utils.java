@@ -110,6 +110,17 @@ public class Utils {
         return list;
     }
 
+    public static List<RepositoryDTO> sortByIssues(List<RepositoryDTO> list) {
+        Comparator<RepositoryDTO> comparator = new Comparator<RepositoryDTO>() {
+            @Override
+            public int compare(RepositoryDTO o1, RepositoryDTO o2) {
+                return o1.getClosedIssues().compareTo(o2.getClosedIssues());
+            }
+        };
+        list.sort(comparator);
+        return list;
+    }
+
 
     public static List<RepositoryCommitDto> getCommits(List<RepositoryDTO> list) {
         return list.stream().map(d -> new RepositoryCommitDto(d.getName(), d.getCountCommits())).toList();
@@ -136,6 +147,7 @@ public class Utils {
         int release = 0;
         int deployments = 0;
         int environments = 0;
+        int issues = 0;
 
         for (RepositoryDTO repositoryDTO : list) {
             commits += repositoryDTO.getCountCommits();
@@ -147,6 +159,7 @@ public class Utils {
             release += repositoryDTO.getReleasesCount();
             deployments += repositoryDTO.getDeployments();
             environments += repositoryDTO.getEnvironments();
+            issues += repositoryDTO.getClosedIssues();
         }
         HashMap<String, Integer> map = new HashMap<>();
         map.put("stars", stars);
@@ -158,6 +171,7 @@ public class Utils {
         map.put("release", release);
         map.put("environments", environments);
         map.put("deployments", deployments);
+        map.put("issues", issues);
         return map;
     }
 
@@ -196,32 +210,46 @@ public class Utils {
 
         responseDto.setCommitsCount(totals.get("commits"));
         responseDto.setCommitsMedian(median(sortByCountCommit(response)).getCountCommits());
-        responseDto.setCommitList(getCommits(response));
+        responseDto.setCommits(response.stream().map(RepositoryDTO::getCountCommits).toList());
 
         responseDto.setStarsCount(totals.get("stars"));
         responseDto.setStarsMedian(median(sortByStarGazers(response)).getStarCounts());
+        responseDto.setStars(response.stream().map(RepositoryDTO::getStarCounts).toList());
 
         responseDto.setContributorsCount(totals.get("contributions"));
         responseDto.setContributorsMedian(median(sortByContibutions(response)).getContributorCount());
+        responseDto.setContributors(response.stream().map(RepositoryDTO::getContributorCount).toList());
 
         responseDto.setBranchCount(totals.get("branches"));
         responseDto.setBranchMedian(median(sortByBranches(response)).getBranchesCount());
+        responseDto.setBranches(response.stream().map(RepositoryDTO::getBranchesCount).toList());
 
         responseDto.setForksCount(totals.get("forks"));
         responseDto.setForksMedian(median(sortByForks(response)).getForksCount());
+        responseDto.setForks(response.stream().map(RepositoryDTO::getForksCount).toList());
 
-        responseDto.setForksCount(totals.get("tags"));
-        responseDto.setForksMedian(median(sortByTags(response)).getTagsCount());
+        responseDto.setTagsCount(totals.get("tags"));
+        responseDto.setTagsMedian(median(sortByTags(response)).getTagsCount());
+        responseDto.setTags(response.stream().map(RepositoryDTO::getTagsCount).toList());
 
         responseDto.setReleasesCount(totals.get("release"));
-        responseDto.setReleasesMedian(median(sortByBranches(response)).getReleasesCount());
+        responseDto.setReleasesMedian(median(sortByRelease(response)).getReleasesCount());
+        responseDto.setReleases(response.stream().map(RepositoryDTO::getReleasesCount).toList());
+
 
         responseDto.setDeploymentsCount(totals.get("deployments"));
         responseDto.setDeploymentsMedian(median(sortByDeployments(response)).getDeployments());
+        responseDto.setDeployments(response.stream().map(RepositoryDTO::getDeployments).toList());
+
 
         responseDto.setEnvironmentsCount(totals.get("environments"));
         responseDto.setEnvironmentsMedian(median(sortByEnvironments(response)).getEnvironments());
+        responseDto.setEnvironments(response.stream().map(RepositoryDTO::getEnvironments).toList());
 
+
+        responseDto.setClosedIssuesCount(totals.get("issues"));
+        responseDto.setClosedIssuesMedian(median(sortByIssues(response)).getClosedIssues());
+        responseDto.setClosedIssues(response.stream().map(RepositoryDTO::getClosedIssues).toList());
 
         responseDto.setLanguages(languages(response));
 

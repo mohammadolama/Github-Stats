@@ -1,6 +1,5 @@
 package olama.githubstats.models;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -11,7 +10,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Root{
+public class RepositoryRootDetails {
     public int id;
     public String node_id;
     public String name;

@@ -3,23 +3,18 @@ package olama.githubstats.controller;
 import lombok.extern.log4j.Log4j2;
 import olama.githubstats.models.*;
 import olama.githubstats.services.MyService;
-import org.springframework.asm.TypeReference;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,22 +59,24 @@ public class MyController {
 
         HttpEntity requestEntity = new HttpEntity<>(headers);
 
-        List<Root> result = new ArrayList<>();
-        ResponseEntity<List<Root>> tokenResponseEntity = restTemplate.exchange(address.replace("{I}", 1 + ""), HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<Root>>() {
+        List<RepositoryRoot> result = new ArrayList<>();
+        ResponseEntity<List<RepositoryRootDetails>> tokenResponseEntity = restTemplate.exchange(address.replace("{I}", 1 + ""), HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<RepositoryRootDetails>>() {
         });
         if (tokenResponseEntity.getStatusCode() == HttpStatus.OK && tokenResponseEntity.getBody() != null) {
-            result.addAll(tokenResponseEntity.getBody());
+            for (RepositoryRootDetails repositoryRootDetails : tokenResponseEntity.getBody()) {
+                result.add(new RepositoryRoot(repositoryRootDetails));
+            }
         }
         int i = extractLink(tokenResponseEntity);
         for (int j = 2; j <= i; j++) {
-            tokenResponseEntity = restTemplate.exchange(address.replace("{I}", j + ""), HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<Root>>() {
+            tokenResponseEntity = restTemplate.exchange(address.replace("{I}", j + ""), HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<RepositoryRootDetails>>() {
             });
             if (tokenResponseEntity.getStatusCode() == HttpStatus.OK && tokenResponseEntity.getBody() != null) {
-                result.addAll(tokenResponseEntity.getBody());
+                for (RepositoryRootDetails repositoryRootDetails : tokenResponseEntity.getBody()) {
+                    result.add(new RepositoryRoot(repositoryRootDetails));
+                }
             }
         }
-
-//        System.out.println(result.size());
 
         List<RepositoryDTO> response = myService.createGeneralStatForRepos(result, headers, restTemplate, username);
         return Utils.createResult(response);
