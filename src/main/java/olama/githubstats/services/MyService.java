@@ -245,7 +245,7 @@ public class MyService {
                 log.info(repositoryDTO.toString());
                 result.add(repositoryDTO);
             } catch (Exception e) {
-                log.debug(e.getStackTrace());
+                e.printStackTrace();
             }
         }
         repository.save(list, username);

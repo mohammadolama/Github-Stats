@@ -12,6 +12,8 @@ import java.util.Map;
 @NoArgsConstructor
 public class ResponseDto {
 
+    private int repositoryCounts;
+
     private int commitsCount;
 
     private int commitsMedian;

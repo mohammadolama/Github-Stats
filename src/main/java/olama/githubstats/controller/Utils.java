@@ -212,6 +212,8 @@ public class Utils {
 
         responseDto.setLanguages(languages(response));
 
+        responseDto.setRepositoryCounts(response.size());
+
         return responseDto;
     }
 
