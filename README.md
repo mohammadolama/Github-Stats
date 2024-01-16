@@ -1,6 +1,24 @@
-This Spring project aim to calculate some basic statistics on github repositoris.
+This Spring project aims to calculate some basic statistics on GitHub repositories.
 
-To run the code, start the java app. It will start a tomcat server on port 8080.
+First, you have to create a GitHub Token. You can create one <a href="https://github.com/settings/tokens" target="_blank">HERE</a>. (If the link does not work, please search to find out how to create a github personal access token.)
+
+After creating an access token, please modify the 'token' in the following section in ```application.yml``` file :
+
+```yaml
+github:
+  base_address: "https://api.github.com/users/{USER_NAME}/repos?per_page=100&page={I}"
+  deployment_address: "https://api.github.com/repos/{USER_NAME}/{REPO_NAME}/deployments"
+  environment_address: "https://api.github.com/repos/{USER_NAME}/{REPO_NAME}/environments"
+  issues_address: "https://api.github.com/repos/{USER_NAME}/{REPO_NAME}/issues?state=closed&per_page=1"
+  token: "Bearer {PUT YOUR PERSONAL ACCESS TOEKN HERE.}"
+```
+
+It should be something like 
+```yaml
+  token: "Bearer ghp_h***9"
+```
+
+Then, start the Java app. It will start a tomcat server on port 8080.
 
 You can use the following URL to ask for statistics :
 
@@ -8,7 +26,7 @@ You can use the following URL to ask for statistics :
 http://localhost:8080/repos/{REPO_NAME}
 ```
 
-for example, to have a look at Kaggle repositories, paste the following url in your browser's searchbar :
+For example, to have a look at Kaggle repositories, paste the following URL in your browser's search bar:
 
 ```
 http://localhost:8080/repos/kaggle
