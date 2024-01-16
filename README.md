@@ -28,6 +28,7 @@ Here is the result from querying Kaggle repositories :
 
 ```json
 {
+    "repositoryCounts": 11,
     "commitsCount": 6574,
     "commitsMedian": 153,
     "commits": [1, 2, 36, 58, 84, 153, 420, 438, 455, 2309, 2618],
