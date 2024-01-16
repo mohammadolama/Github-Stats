@@ -5,6 +5,7 @@ import olama.githubstats.models.RepositoryDTO;
 import olama.githubstats.models.ResponseDto;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 public class Utils {
@@ -44,81 +45,71 @@ public class Utils {
         return list;
     }
 
-
-    /**
-     * It was more accurate to find the actual median if the size is even. But the result
-     * could be a float number, thus I decided to skip this extra precision.
-     */
-    public static Integer findMedianCommit(List<RepositoryDTO> list){
-        int size = list.size();
-        return list.get((int) Math.floor(size/2)).getCountCommits();
+    public static List<RepositoryDTO> sortByBranches(List<RepositoryDTO> list){
+        Comparator<RepositoryDTO> comparator = new Comparator<RepositoryDTO>() {
+            @Override
+            public int compare(RepositoryDTO o1, RepositoryDTO o2) {
+                return o1.getBranchesCount().compareTo(o2.getBranchesCount());
+            }
+        };
+        list.sort(comparator);
+        return list;
     }
 
-    public static Integer findTotalCommits(List<RepositoryDTO> list){
-        int res = 0;
-        for (RepositoryDTO repositoryDTO : list) {
-            res += repositoryDTO.getCountCommits();
-        }
-        return res;
-    }
 
     public static List<RepositoryCommitDto> getCommits(List<RepositoryDTO> list){
         return list.stream().map(d -> new RepositoryCommitDto(d.getName(), d.getCountCommits())).toList();
     }
 
 
-    public static Integer findMedianStars(List<RepositoryDTO> list){
+    /**
+     * It was more accurate to find the actual median if the size is even. But the result
+     * could be a float number, thus I decided to skip this extra precision.
+     */
+    public static RepositoryDTO median(List<RepositoryDTO> list){
         int size = list.size();
-        return list.get((int) Math.floor(size/2)).getStarCounts();
+        return list.get((int) Math.floor(size/2));
     }
 
-    public static Integer findTotalContributions(List<RepositoryDTO> list){
-        int res = 0;
+
+    public static HashMap<String , Integer> getTotals(List<RepositoryDTO> list){
+        int commits = 0;
+        int stars = 0;
+        int contribution = 0;
+        int branches = 0;
         for (RepositoryDTO repositoryDTO : list) {
-            res += repositoryDTO.getContributorCount();
+            commits += repositoryDTO.getCountCommits();
+            stars += repositoryDTO.getStarCounts();
+            contribution += repositoryDTO.getContributorCount();
+            branches += repositoryDTO.getBranchesCount();
         }
-        return res;
-    }
-
-    public static Integer findMedianContributors(List<RepositoryDTO> list){
-        int size = list.size();
-        return list.get((int) Math.floor(size/2)).getContributorCount();
-    }
-
-    public static Integer findTotalStars(List<RepositoryDTO> list){
-        int res = 0;
-        for (RepositoryDTO repositoryDTO : list) {
-            res += repositoryDTO.getStarCounts();
-        }
-        return res;
+        HashMap<String , Integer> map = new HashMap<>();
+        map.put("stars" , stars);
+        map.put("commits" , commits);
+        map.put("contributions" , contribution);
+        map.put("branches" , branches);
+        return map;
     }
 
     public static ResponseDto createResult(List<RepositoryDTO> response) {
 
 
         ResponseDto responseDto = new ResponseDto();
-        List<RepositoryDTO> repositoryDTOS = sortByCountCommit(response);
 
-        int totalCommits = findTotalCommits(repositoryDTOS);
-        int medianCommits = findMedianCommit(repositoryDTOS);
-        List<RepositoryCommitDto> commits = Utils.getCommits(repositoryDTOS);
+        HashMap<String, Integer> totals = getTotals(response);
 
-        responseDto.setCommitsTotalCount(totalCommits);
-        responseDto.setCommmitsMedianCount(medianCommits);
-        responseDto.setCommitList(commits);
+        responseDto.setCommitsCount(totals.get("commits"));
+        responseDto.setCommmitsMedian(median(sortByCountCommit(response)).getCountCommits());
+        responseDto.setCommitList(getCommits(response));
 
-        List<RepositoryDTO> repositoryDTOS1 = sortByStarGazers(response);
-        int totalStars = findTotalStars(repositoryDTOS1);
-        int medianStars = findMedianStars(repositoryDTOS1);
+        responseDto.setStarsCount(totals.get("stars"));
+        responseDto.setStarsMedian(median(sortByStarGazers(response)).getStarCounts());
 
-        responseDto.setTotalCountStars(totalStars);
-        responseDto.setMedianCountStars(medianStars);
+        responseDto.setContibutorsCount(totals.get("contributions"));
+        responseDto.setContributorsMedian(median(sortByContibutions(response)).getContributorCount());
 
-        List<RepositoryDTO> repositoryDTOS2 = sortByContibutions(response);
-        int totalContributions = findTotalContributions(repositoryDTOS2);
-        int medianContributions = findMedianContributors(repositoryDTOS2);
-        responseDto.setContibutors(totalContributions);
-        responseDto.setMedianContributors(medianContributions);
+        responseDto.setBranchCount(totals.get("branches"));
+        responseDto.setBranchMedian(median(sortByBranches(response)).getBranchesCount());
 
         return responseDto;
     }

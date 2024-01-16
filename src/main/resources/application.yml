@@ -4,4 +4,6 @@ github:
 
 logging:
   level:
+    olama:
+      githubstats: DEBUG
     root: INFO

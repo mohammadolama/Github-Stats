@@ -13,23 +13,29 @@ import java.util.List;
 public class ResponseDto {
 
     @JsonProperty("total counts of all commits")
-    private int commitsTotalCount;
+    private int commitsCount;
 
     @JsonProperty("median count of all commits")
-    private int commmitsMedianCount;
+    private int commmitsMedian;
 
     @JsonProperty("list of commits")
     private List<RepositoryCommitDto> commitList;
 
     @JsonProperty("total counts of all stars")
-    private int totalCountStars;
+    private int starsCount;
 
     @JsonProperty("median count of all stars")
-    private int medianCountStars;
+    private int starsMedian;
 
     @JsonProperty("total count of all contributors")
-    private int contibutors;
+    private int contibutorsCount;
 
     @JsonProperty("median of contributors")
-    private int medianContributors;
+    private int contributorsMedian;
+
+    @JsonProperty("total count of all branches")
+    private int branchCount;
+
+    @JsonProperty("median of branches")
+    private int branchMedian;
 }

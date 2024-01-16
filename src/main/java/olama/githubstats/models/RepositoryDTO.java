@@ -9,6 +9,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class RepositoryDTO {
     private String name;
 
@@ -17,5 +18,7 @@ public class RepositoryDTO {
     private Integer starCounts;
 
     private Integer contributorCount;
+
+    private Integer branchesCount;
 
 }

@@ -3,9 +3,7 @@ package olama.githubstats.services;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
 import olama.githubstats.Repository;
-import olama.githubstats.models.CommitRoot;
-import olama.githubstats.models.RepositoryDTO;
-import olama.githubstats.models.Root;
+import olama.githubstats.models.*;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +34,51 @@ public class MyService {
         this.objectMapper = new ObjectMapper();
     }
 
+    private void findCountOfBranches(String baseUrl , HttpEntity requestEntity  , RestTemplate restTemplate , RepositoryDTO repositoryDTO){
+        String url = baseUrl.replace("{/branch}", "?per_page=1");
+        ResponseEntity<List<Branch>> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<Branch>>() {});
+            log.info("branch: " + response.getStatusCode());
+        if (response.getStatusCode() == HttpStatus.OK && response.getBody() !=null) {
+            int count = 0;
+            try {
+                count = findCount(response.getHeaders().get("link").get(0));
+            }catch (Exception e){
+                count = response.getBody().size();
+            }
+            repositoryDTO.setBranchesCount(count);
+        }
+    }
+
+    private void findCountOfCommits(String baseUrl , HttpEntity requestEntity  , RestTemplate restTemplate , RepositoryDTO repositoryDTO){
+        String url = baseUrl.replace("{/sha}", "?per_page=1");
+        ResponseEntity<List<CommitRoot>> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<CommitRoot>>() {});
+        log.info("commits: " + response.getStatusCode());
+        if (response.getStatusCode() == HttpStatus.OK && response.getBody() !=null) {
+            int count = 0;
+            try {
+                count = findCount(response.getHeaders().get("link").get(0));
+            }catch (Exception e){
+                count = response.getBody().size();
+            }
+            repositoryDTO.setCountCommits(count);
+        }
+    }
+
+    private void findCountOfContributions(String baseUrl , HttpEntity requestEntity  , RestTemplate restTemplate , RepositoryDTO repositoryDTO){
+        String url = baseUrl + "?per_page=1";
+        ResponseEntity<List<Contributor>> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<Contributor>>() {});
+        log.info("contributions: " + response.getStatusCode());
+        if (response.getStatusCode() == HttpStatus.OK && response.getBody() !=null) {
+            int count = 0;
+            try {
+                count = findCount(response.getHeaders().get("link").get(0));
+            }catch (Exception e){
+                count = response.getBody().size();
+            }
+            repositoryDTO.setContributorCount(count);
+        }
+    }
+
 
     public List<RepositoryDTO> createGeneralStatForRepos(List<Root> list ,HttpHeaders headers, RestTemplate restTemplate){
 
@@ -47,34 +90,18 @@ public class MyService {
                 repositoryDTO.setName(root.getName());
                 repositoryDTO.setStarCounts(root.getStargazers_count());
 
-
-                String commitsUrl = root.getCommits_url().replace("{/sha}", "?per_page=1");
-                log.info(commitsUrl);
-
                 HttpEntity requestEntity = new HttpEntity<>(headers);
-                ResponseEntity<List<CommitRoot>> tokenResponseEntity = restTemplate.exchange(commitsUrl, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<CommitRoot>>() {});
 
-                if (tokenResponseEntity.getStatusCode() == HttpStatus.OK && tokenResponseEntity.getBody() !=null) {
+                findCountOfCommits(root.getCommits_url() , requestEntity , restTemplate , repositoryDTO);
 
-                    log.info(tokenResponseEntity.getStatusCode());
-                    int count = findCount(tokenResponseEntity.getHeaders().get("link").get(0));
-                    repositoryDTO.setCountCommits(count);
-                }
+                findCountOfContributions(root.getContributors_url()  , requestEntity , restTemplate , repositoryDTO);
 
-                String contributorsUrl = root.getContributors_url() + "?per_page=1";
-                ResponseEntity<List<CommitRoot>> contributions = restTemplate.exchange(contributorsUrl, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<CommitRoot>>() {
-                });
+                findCountOfBranches(root.getBranches_url() , requestEntity , restTemplate , repositoryDTO);
 
-                if (contributions.getStatusCode() == HttpStatus.OK && contributions.getBody() != null){
-                    log.info(tokenResponseEntity.getStatusCode());
-                    int count = findCount(contributions.getHeaders().get("link").get(0));
-                    repositoryDTO.setContributorCount(count);
-                }
-
-                log.info(root.getName() + " : coomit count=" + repositoryDTO.getCountCommits() + " , star=" + repositoryDTO.getStarCounts() + " , contributors=" + repositoryDTO.getContributorCount());
+                log.info(repositoryDTO.toString());
                 result.add(repositoryDTO);
-            }catch (Exception ignore){
-
+            }catch (Exception e){
+                log.debug(e);
             }
         }
 
